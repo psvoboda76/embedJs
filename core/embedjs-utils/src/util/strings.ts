@@ -3,6 +3,9 @@ import { Message } from '@llm-tools/embedjs-interfaces';
 export function truncateCenterString(fullStr: string, strLen: number, separator?: string) {
     if (fullStr.length <= strLen) return fullStr;
 
+    //SVOBODA
+    return fullStr.substring(0, strLen);
+
     separator = separator || '...';
 
     const sepLen = separator.length,
