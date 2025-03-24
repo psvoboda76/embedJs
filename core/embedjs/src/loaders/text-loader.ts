@@ -7,13 +7,36 @@ import { truncateCenterString, returnTagID, cleanString } from '@llm-tools/embed
 export class TextLoader extends BaseLoader<{ type: 'TextLoader' }> {
     private readonly text: string;
 
-    constructor({ text, chunkSize, chunkOverlap }: { text: string; chunkSize?: number; chunkOverlap?: number }) {
-        super(`TextLoader_${md5(text)}`, { text: returnTagID(text, 50) }, chunkSize ?? 300, chunkOverlap ?? 0);
+    constructor({
+        text,
+        chunkSize,
+        chunkOverlap,
+        middleId,
+    }: {
+        text: string;
+        chunkSize?: number;
+        chunkOverlap?: number;
+        middleId?: string;
+    }) {
+        if (middleId) {
+            let id = `TextLoader_${middleId}_${md5(text)}`;
+            super(id, { text: returnTagID(text, 50) }, chunkSize ?? 300, chunkOverlap ?? 0);
+        } else {
+            let id = `TextLoader_${md5(text)}`;
+            super(id, { text: truncateCenterString(text, 50) }, chunkSize ?? 300, chunkOverlap ?? 0);
+        }
+
         this.text = text;
     }
 
     override async *getUnfilteredChunks() {
-        const tuncatedObjectString = returnTagID(this.text, 50);
+        let tuncatedObjectString;
+        if (this.uniqueId.split('_').length > 1) {
+            tuncatedObjectString = returnTagID(this.text, 50);
+        } else {
+            tuncatedObjectString = truncateCenterString(this.text, 50);
+        }
+
         const chunker = new RecursiveCharacterTextSplitter({
             chunkSize: this.chunkSize,
             chunkOverlap: this.chunkOverlap,

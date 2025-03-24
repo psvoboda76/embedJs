@@ -402,7 +402,7 @@ export class RAGApplication {
      */
     public async query(
         userQuery: string,
-        options?: { conversationId?: string; customContext?: Chunk[] },
+        options?: { conversationId?: string; customContext?: Chunk[]; limitConversation?: number },
     ): Promise<QueryResponse> {
         if (!this.model) {
             throw new Error('LLM Not set; query method not available');
@@ -421,6 +421,6 @@ export class RAGApplication {
             `Query resulted in ${context.length} chunks after filteration; chunks from ${sources.length} unique sources.`,
         );
 
-        return this.model.query(this.systemMessage, userQuery, context, conversationId);
+        return this.model.query(this.systemMessage, userQuery, context, conversationId, options?.limitConversation);
     }
 }
