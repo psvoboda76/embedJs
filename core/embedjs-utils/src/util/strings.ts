@@ -1,16 +1,5 @@
 import { Message } from '@llm-tools/embedjs-interfaces';
 
-export function returnTagID(fullStr: string, strLen: number) {
-    let parts = fullStr.split(' ');
-    if (parts.length > 1) {
-        return parts[0];
-    } else {
-        if (fullStr.length <= strLen) return fullStr;
-        //SVOBODA
-        return fullStr.substring(0, strLen);
-    }
-}
-
 export function truncateCenterString(fullStr: string, strLen: number, separator?: string) {
     if (fullStr.length <= strLen) return fullStr;
 

@@ -2,7 +2,18 @@ import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 import md5 from 'md5';
 
 import { BaseLoader } from '@llm-tools/embedjs-interfaces';
-import { truncateCenterString, returnTagID, cleanString } from '@llm-tools/embedjs-utils';
+import { truncateCenterString, cleanString } from '@llm-tools/embedjs-utils';
+
+export function returnTagID(fullStr: string, strLen: number) {
+    let parts = fullStr.split(' ');
+    if (parts.length > 1) {
+        return parts[0];
+    } else {
+        if (fullStr.length <= strLen) return fullStr;
+        //SVOBODA
+        return fullStr.substring(0, strLen);
+    }
+}
 
 export class TextLoader extends BaseLoader<{ type: 'TextLoader' }> {
     private readonly text: string;
