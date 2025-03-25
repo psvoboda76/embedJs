@@ -15,13 +15,31 @@ export class Ollama extends BaseModel {
         });
     }
 
-    override async runQuery(messages: (AIMessage | SystemMessage | HumanMessage)[]): Promise<ModelResponse> {
+    override async runQuery(
+        messages: (AIMessage | SystemMessage | HumanMessage)[],
+        callback?: any,
+    ): Promise<ModelResponse> {
         this.debug(`Executing ollama model ${this.model} with prompt -`, messages[messages.length - 1].content);
-        const result = await this.model.invoke(messages);
-        this.debug('Ollama response -', result);
+        if (callback) {
+            const stream = await this.model.stream(messages);
 
-        return {
-            result: result.toString(),
-        };
+            const chunks = [];
+            for await (const chunk of stream) {
+                chunks.push(chunk);
+                callback(chunk);
+            }
+
+            let res = chunks.join('');
+            return {
+                result: res,
+            };
+        } else {
+            const result = await this.model.invoke(messages);
+            this.debug('Ollama response -', result);
+
+            return {
+                result: result.toString(),
+            };
+        }
     }
 }

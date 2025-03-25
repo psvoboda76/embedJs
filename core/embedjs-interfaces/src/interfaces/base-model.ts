@@ -80,6 +80,7 @@ export abstract class BaseModel {
         supportingContext: Chunk[],
         conversationId?: string,
         limitConversation?: number,
+        callback?: any,
     ): Promise<QueryResponse> {
         let conversation: Conversation;
 
@@ -135,7 +136,7 @@ export abstract class BaseModel {
         const id = uuidv4();
 
         // Run LLM implementation in subclass
-        const response = await this.runQuery(messages);
+        const response = await this.runQuery(messages, callback);
 
         const newEntry: Message = {
             id,
@@ -171,5 +172,8 @@ export abstract class BaseModel {
         };
     }
 
-    protected abstract runQuery(messages: (AIMessage | SystemMessage | HumanMessage)[]): Promise<ModelResponse>;
+    protected abstract runQuery(
+        messages: (AIMessage | SystemMessage | HumanMessage)[],
+        callback?: any,
+    ): Promise<ModelResponse>;
 }
