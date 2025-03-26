@@ -97,24 +97,21 @@ export abstract class BaseModel {
 
             //if we have short context windows we need to limit the conversation history
             if (limitConversation && conversation.entries.length > 0) {
-                let userQueryTokens = userQuery.match(/\w+|[^\w\s]+/g) || [];
+                let userQueryTokens = Math.ceil(userQuery.length / 4); //userQuery.match(/\w+|[^\w\s]+/g) || [];
                 let text = '';
                 for (let i = 0; i < conversation.entries.length - 1; i++) {
                     let c = conversation.entries[i];
                     text = text + c.actor + ': ' + c.content + '\n';
                 }
-                let tokenCount = text.match(/\w+|[^\w\s]+/g) || [];
-                while (
-                    conversation.entries.length > 0 &&
-                    tokenCount.length + userQueryTokens.length > limitConversation
-                ) {
+                let tokenCount = Math.ceil(text.length / 4); //text.match(/\w+|[^\w\s]+/g) || [];
+                while (conversation.entries.length > 0 && tokenCount + userQueryTokens > limitConversation) {
                     conversation.entries.shift();
                     text = '';
                     for (let i = 0; i < conversation.entries.length - 1; i++) {
                         let c = conversation.entries[i];
                         text = text + c.actor + ': ' + c.content + '\n';
                     }
-                    tokenCount = text.match(/\w+|[^\w\s]+/g) || [];
+                    tokenCount = Math.ceil(text.length / 4); //text.match(/\w+|[^\w\s]+/g) || [];
                 }
             }
 
