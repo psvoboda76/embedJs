@@ -85,7 +85,7 @@ async function createRelease(dryRun, version, makeGitCommit) {
     const versionMap = new Map();
     console.log('Computing nx release version map');
     for (const [pkgName, { newVersion }] of Object.entries(projectsVersionData)) {
-        versionMap.set(`@myscada/${pkgName}`, newVersion);
+        versionMap.set(`@llm-tools/${pkgName}`, newVersion);
     }
 
     console.log('Updating projects actual version to match NX computed values');
