@@ -1,0 +1,1 @@
+{"version":3,"file":"log.js","sourceRoot":"","sources":["../../../../../core/embedjs-utils/src/util/log.ts"],"names":[],"mappings":";;AAEA,0BAEC;;AAJD,wDAAwB;AAExB,SAAgB,OAAO,CAAC,GAAY;IAChC,OAAO,CAAC,GAAG,CAAC,cAAI,CAAC,OAAO,CAAC,GAAG,EAAE,EAAE,KAAK,EAAE,IAAI,EAAE,MAAM,EAAE,IAAI,EAAE,MAAM,EAAE,IAAI,EAAE,OAAO,EAAE,KAAK,EAAE,CAAC,CAAC,CAAC;AAChG,CAAC"}
