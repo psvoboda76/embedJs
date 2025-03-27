@@ -81,6 +81,7 @@ export abstract class BaseModel {
         conversationId?: string,
         limitConversation?: number,
         callback?: any,
+        estimateTokens?: (text: string) => number,
     ): Promise<QueryResponse> {
         let conversation: Conversation;
 
@@ -97,13 +98,13 @@ export abstract class BaseModel {
 
             //if we have short context windows we need to limit the conversation history
             if (limitConversation && conversation.entries.length > 0) {
-                let userQueryTokens = Math.ceil(userQuery.length / 4); //userQuery.match(/\w+|[^\w\s]+/g) || [];
+                let userQueryTokens = estimateTokens(userQuery);
                 let text = '';
                 for (let i = 0; i < conversation.entries.length - 1; i++) {
                     let c = conversation.entries[i];
                     text = text + c.actor + ': ' + c.content + '\n';
                 }
-                let tokenCount = Math.ceil(text.length / 4); //text.match(/\w+|[^\w\s]+/g) || [];
+                let tokenCount = estimateTokens(text);
                 while (conversation.entries.length > 0 && tokenCount + userQueryTokens > limitConversation) {
                     conversation.entries.shift();
                     text = '';
@@ -111,7 +112,7 @@ export abstract class BaseModel {
                         let c = conversation.entries[i];
                         text = text + c.actor + ': ' + c.content + '\n';
                     }
-                    tokenCount = Math.ceil(text.length / 4); //text.match(/\w+|[^\w\s]+/g) || [];
+                    tokenCount = estimateTokens(text);
                 }
             }
 
