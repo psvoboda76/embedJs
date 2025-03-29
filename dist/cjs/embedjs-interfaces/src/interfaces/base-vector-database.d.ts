@@ -4,7 +4,7 @@ export interface BaseVectorDatabase {
         dimensions: number;
     }): Promise<void>;
     insertChunks(chunks: InsertChunkData[]): Promise<number>;
-    similaritySearch(query: number[], k: number): Promise<ExtractChunkData[]>;
+    similaritySearch(query: number[], k: number, limitsPerDoc?: number): Promise<ExtractChunkData[]>;
     getVectorCount(): Promise<number>;
     deleteKeys(uniqueLoaderId: string): Promise<boolean>;
     reset(): Promise<void>;

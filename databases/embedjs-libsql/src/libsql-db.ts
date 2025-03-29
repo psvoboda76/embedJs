@@ -47,12 +47,32 @@ export class LibSqlDb implements BaseVectorDatabase {
         return result.reduce((a, b) => a + b.rowsAffected, 0);
     }
 
-    async similaritySearch(query: number[], k: number): Promise<ExtractChunkData[]> {
-        const statement = `SELECT id, pageContent, uniqueLoaderId, source, metadata,
+    async similaritySearch(query: number[], k: number, docLimit?: number): Promise<ExtractChunkData[]> {
+        let statement = `SELECT id, pageContent, uniqueLoaderId, source, metadata,
                 vector_distance_cos(vector, vector32('[${query.join(',')}]')) as distance
             FROM ${this.tableName}
             ORDER BY vector_distance_cos(vector, vector32('[${query.join(',')}]')) ASC
             LIMIT ${k};`;
+
+        if (docLimit) {
+            statement = `
+    WITH ranked_results AS (
+        SELECT id, pageContent, uniqueLoaderId, source, metadata,
+               vector_distance_cos(vector, vector32('[${query.join(',')}]')) as distance,
+               (SELECT COUNT(*) 
+                FROM ${this.tableName} AS sub 
+                WHERE sub.uniqueLoaderId = main.uniqueLoaderId 
+                AND sub.id <= main.id) AS row_num
+        FROM ${this.tableName} AS main
+        ORDER BY distance ASC
+    )
+    SELECT id, pageContent, uniqueLoaderId, source, metadata, distance
+    FROM ranked_results
+    WHERE row_num <= ${docLimit}
+    ORDER BY distance ASC
+    LIMIT ${k};
+`;
+        }
 
         this.debug(`Executing statement - ${truncateCenterString(statement, 700)}`);
         const results = await this.client.execute(statement);

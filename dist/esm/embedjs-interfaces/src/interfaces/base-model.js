@@ -51,7 +51,7 @@ export class BaseModel {
         messages.push(new HumanMessage(`${userQuery}?`));
         return messages;
     }
-    async query(system, userQuery, supportingContext, conversationId, limitConversation, callback) {
+    async query(system, userQuery, supportingContext, conversationId, limitConversation, callback, estimateTokens) {
         let conversation;
         if (conversationId) {
             if (!(await BaseModel.store.hasConversation(conversationId))) {
@@ -62,22 +62,21 @@ export class BaseModel {
             this.baseDebug(`${conversation.entries.length} history entries found for conversationId '${conversationId}'`);
             //if we have short context windows we need to limit the conversation history
             if (limitConversation && conversation.entries.length > 0) {
-                let userQueryTokens = userQuery.match(/\w+|[^\w\s]+/g) || [];
+                let userQueryTokens = estimateTokens(userQuery);
                 let text = '';
                 for (let i = 0; i < conversation.entries.length - 1; i++) {
                     let c = conversation.entries[i];
                     text = text + c.actor + ': ' + c.content + '\n';
                 }
-                let tokenCount = text.match(/\w+|[^\w\s]+/g) || [];
-                while (conversation.entries.length > 0 &&
-                    tokenCount.length + userQueryTokens.length > limitConversation) {
+                let tokenCount = estimateTokens(text);
+                while (conversation.entries.length > 0 && tokenCount + userQueryTokens > limitConversation) {
                     conversation.entries.shift();
                     text = '';
                     for (let i = 0; i < conversation.entries.length - 1; i++) {
                         let c = conversation.entries[i];
                         text = text + c.actor + ': ' + c.content + '\n';
                     }
-                    tokenCount = text.match(/\w+|[^\w\s]+/g) || [];
+                    tokenCount = estimateTokens(text);
                 }
             }
             // Add user query to history

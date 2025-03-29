@@ -13,7 +13,7 @@ export declare abstract class BaseModel {
     init(): Promise<void>;
     private extractUniqueSources;
     prepare(system: string, userQuery: string, supportingContext: Chunk[], pastConversations: Message[]): Promise<(AIMessage | SystemMessage | HumanMessage)[]>;
-    query(system: string, userQuery: string, supportingContext: Chunk[], conversationId?: string, limitConversation?: number, callback?: any): Promise<QueryResponse>;
+    query(system: string, userQuery: string, supportingContext: Chunk[], conversationId?: string, limitConversation?: number, callback?: any, estimateTokens?: (text: string) => number): Promise<QueryResponse>;
     simpleQuery(messages: (AIMessage | SystemMessage | HumanMessage)[]): Promise<{
         result: string;
         tokenUse: {

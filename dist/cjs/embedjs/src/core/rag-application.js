@@ -310,9 +310,9 @@ class RAGApplication {
      * based on a relevance cutoff value, sorted in descending order of score, and then sliced to return
      * only the number of results specified by the `searchResultCount` property.
      */
-    async getEmbeddings(cleanQuery) {
+    async getEmbeddings(cleanQuery, limitsPerDoc) {
         const queryEmbedded = await this.embeddingModel.embedQuery(cleanQuery);
-        const unfilteredResultSet = await this.vectorDatabase.similaritySearch(queryEmbedded, this.searchResultCount + 10);
+        const unfilteredResultSet = await this.vectorDatabase.similaritySearch(queryEmbedded, this.searchResultCount + 10, limitsPerDoc);
         this.debug(`Query resulted in ${unfilteredResultSet.length} chunks before filteration...`);
         return unfilteredResultSet
             .filter((result) => result.score > this.embeddingRelevanceCutOff)
@@ -325,9 +325,9 @@ class RAGApplication {
      * needs to be processed.
      * @returns An array of unique page content items / chunks.
      */
-    async search(query) {
+    async search(query, limitsPerDoc) {
         const cleanQuery = (0, embedjs_utils_1.cleanString)(query);
-        const rawContext = await this.getEmbeddings(cleanQuery);
+        const rawContext = await this.getEmbeddings(cleanQuery, limitsPerDoc);
         return [...new Map(rawContext.map((item) => [item.pageContent, item])).values()];
     }
     /**

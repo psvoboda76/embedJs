@@ -150,14 +150,14 @@ export declare class RAGApplication {
      * based on a relevance cutoff value, sorted in descending order of score, and then sliced to return
      * only the number of results specified by the `searchResultCount` property.
      */
-    getEmbeddings(cleanQuery: string): Promise<import("@llm-tools/embedjs-interfaces").ExtractChunkData[]>;
+    getEmbeddings(cleanQuery: string, limitsPerDoc?: number): Promise<import("@llm-tools/embedjs-interfaces").ExtractChunkData[]>;
     /**
      * The `search` function retrieves the unique embeddings for a given query without calling a LLM.
      * @param {string} query - The `query` parameter is a string that represents the input query that
      * needs to be processed.
      * @returns An array of unique page content items / chunks.
      */
-    search(query: string): Promise<import("@llm-tools/embedjs-interfaces").ExtractChunkData[]>;
+    search(query: string, limitsPerDoc?: number): Promise<import("@llm-tools/embedjs-interfaces").ExtractChunkData[]>;
     /**
      * This function takes a user query, retrieves relevant context, identifies unique sources, and
      * returns the query result along with the list of sources.

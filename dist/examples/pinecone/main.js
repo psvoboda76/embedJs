@@ -176,7 +176,7 @@ var init_base_model = __esm({
         messages.push(new HumanMessage(`${userQuery}?`));
         return messages;
       }
-      async query(system, userQuery, supportingContext, conversationId, limitConversation, callback) {
+      async query(system, userQuery, supportingContext, conversationId, limitConversation, callback, estimateTokens) {
         let conversation;
         if (conversationId) {
           if (!await _BaseModel.store.hasConversation(conversationId)) {
@@ -188,21 +188,21 @@ var init_base_model = __esm({
             `${conversation.entries.length} history entries found for conversationId '${conversationId}'`
           );
           if (limitConversation && conversation.entries.length > 0) {
-            let userQueryTokens = userQuery.match(/\w+|[^\w\s]+/g) || [];
+            let userQueryTokens = estimateTokens(userQuery);
             let text = "";
             for (let i = 0; i < conversation.entries.length - 1; i++) {
               let c = conversation.entries[i];
               text = text + c.actor + ": " + c.content + "\n";
             }
-            let tokenCount = text.match(/\w+|[^\w\s]+/g) || [];
-            while (conversation.entries.length > 0 && tokenCount.length + userQueryTokens.length > limitConversation) {
+            let tokenCount = estimateTokens(text);
+            while (conversation.entries.length > 0 && tokenCount + userQueryTokens > limitConversation) {
               conversation.entries.shift();
               text = "";
               for (let i = 0; i < conversation.entries.length - 1; i++) {
                 let c = conversation.entries[i];
                 text = text + c.actor + ": " + c.content + "\n";
               }
-              tokenCount = text.match(/\w+|[^\w\s]+/g) || [];
+              tokenCount = estimateTokens(text);
             }
           }
           await _BaseModel.store.addEntryToConversation(conversationId, {
@@ -916,11 +916,12 @@ var RAGApplication = class {
    * based on a relevance cutoff value, sorted in descending order of score, and then sliced to return
    * only the number of results specified by the `searchResultCount` property.
    */
-  async getEmbeddings(cleanQuery) {
+  async getEmbeddings(cleanQuery, limitsPerDoc) {
     const queryEmbedded = await this.embeddingModel.embedQuery(cleanQuery);
     const unfilteredResultSet = await this.vectorDatabase.similaritySearch(
       queryEmbedded,
-      this.searchResultCount + 10
+      this.searchResultCount + 10,
+      limitsPerDoc
     );
     this.debug(`Query resulted in ${unfilteredResultSet.length} chunks before filteration...`);
     return unfilteredResultSet.filter((result) => result.score > this.embeddingRelevanceCutOff).sort((a, b) => b.score - a.score).slice(0, this.searchResultCount);
@@ -931,9 +932,9 @@ var RAGApplication = class {
    * needs to be processed.
    * @returns An array of unique page content items / chunks.
    */
-  async search(query) {
+  async search(query, limitsPerDoc) {
     const cleanQuery = cleanString(query);
-    const rawContext = await this.getEmbeddings(cleanQuery);
+    const rawContext = await this.getEmbeddings(cleanQuery, limitsPerDoc);
     return [...new Map(rawContext.map((item) => [item.pageContent, item])).values()];
   }
   /**
