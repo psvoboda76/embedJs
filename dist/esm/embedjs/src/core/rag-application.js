@@ -358,7 +358,7 @@ export class RAGApplication {
         }
         const sources = [...new Set(context.map((chunk) => chunk.metadata.source))];
         this.debug(`Query resulted in ${context.length} chunks after filteration; chunks from ${sources.length} unique sources.`);
-        return this.model.query(this.systemMessage, userQuery, context, conversationId, options?.limitConversation, options?.callback);
+        return this.model.query(this.systemMessage, userQuery, context, conversationId, options?.limitConversation, options?.callback, options?.estimateTokens);
     }
 }
 //# sourceMappingURL=rag-application.js.map

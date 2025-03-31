@@ -22,8 +22,14 @@ class OpenAi extends embedjs_interfaces_1.BaseModel {
             const stream = await this.model.stream(messages);
             const chunks = [];
             for await (const chunk of stream) {
-                chunks.push(chunk);
-                callback(chunk);
+                if (chunk.content != null) {
+                    chunks.push(chunk.content);
+                    callback(chunk.content);
+                }
+                else {
+                    chunks.push(chunk);
+                    callback(chunk);
+                }
             }
             let res = chunks.join('');
             return {

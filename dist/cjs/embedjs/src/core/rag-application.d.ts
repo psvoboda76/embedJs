@@ -182,5 +182,6 @@ export declare class RAGApplication {
         customContext?: Chunk[];
         limitConversation?: number;
         callback?: any;
+        estimateTokens?: any;
     }): Promise<QueryResponse>;
 }
