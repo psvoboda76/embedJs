@@ -403,7 +403,13 @@ export class RAGApplication {
      */
     public async query(
         userQuery: string,
-        options?: { conversationId?: string; customContext?: Chunk[]; limitConversation?: number; callback?: any },
+        options?: {
+            conversationId?: string;
+            customContext?: Chunk[];
+            limitConversation?: number;
+            callback?: any;
+            estimateTokens?: any;
+        },
     ): Promise<QueryResponse> {
         if (!this.model) {
             throw new Error('LLM Not set; query method not available');
@@ -429,6 +435,7 @@ export class RAGApplication {
             conversationId,
             options?.limitConversation,
             options?.callback,
+            options?.estimateTokens,
         );
     }
 }
